@@ -1,9 +1,6 @@
 package com.careerdevs.gorestfinal.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
@@ -15,6 +12,8 @@ public class Post {
 
     private long user_id;
     private String title;
+
+    @Column(length = 512)
     private String body;
 
     public long getId() {
