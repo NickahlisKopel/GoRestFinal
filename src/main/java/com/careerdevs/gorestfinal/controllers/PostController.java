@@ -99,6 +99,11 @@ public class PostController {
         }
     }
 
+
+
+
+
+
     @PostMapping ("/")
     public ResponseEntity<?> createPost (@RequestBody Post newPost){
         try{
@@ -119,8 +124,13 @@ public class PostController {
         }
     }
 
+
+
+
+
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUserById(@PathVariable ("id") String id) {
+    public ResponseEntity<?> deletePostById(@PathVariable ("id") String id) {
 
         try{
             if(BasicUtils.isStrNaN(id)){
@@ -133,7 +143,7 @@ public class PostController {
             Optional<Post> foundPost = postRepository.findById(uID);
 
             if(foundPost.isEmpty()){
-                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found with Id: " + id);
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Post not found with Id: " + id);
 
             }
             postRepository.deleteById(uID);
@@ -150,6 +160,14 @@ public class PostController {
         }
 
     }
+
+
+
+
+
+
+
+
 
     @DeleteMapping("/deleteall")
     public ResponseEntity<?> deleteAllPosts (){
@@ -168,6 +186,13 @@ public class PostController {
         }
 
     }
+
+
+
+
+
+
+
 
     @PostMapping("/upload/{id}")
     public ResponseEntity<?> uploadPostById(
@@ -196,6 +221,11 @@ public class PostController {
             return ApiErrorHandling.genericApiError(e);
         }
     }
+
+
+
+
+
 
 
     @PostMapping("/uploadall")
@@ -243,6 +273,12 @@ public class PostController {
 
         }
     }
+
+
+
+
+
+
 
 
     @PutMapping("/")
