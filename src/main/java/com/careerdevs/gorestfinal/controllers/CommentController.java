@@ -4,6 +4,7 @@ package com.careerdevs.gorestfinal.controllers;
 import com.careerdevs.gorestfinal.models.Comment;
 import com.careerdevs.gorestfinal.models.Post;
 import com.careerdevs.gorestfinal.repositories.CommentRepository;
+import com.careerdevs.gorestfinal.repositories.PostRepository;
 import com.careerdevs.gorestfinal.utils.ApiErrorHandling;
 import com.careerdevs.gorestfinal.utils.BasicUtils;
 import com.careerdevs.gorestfinal.validation.CommentValidation;
@@ -28,6 +29,7 @@ public class CommentController {
 
     @Autowired
     CommentRepository commentRepository;
+    PostRepository postRepository;
 
 
 
@@ -90,7 +92,7 @@ public class CommentController {
     @PostMapping("/")
     public ResponseEntity<?> createComment (@RequestBody Comment newComment){
         try{
-            ValidationError errors = CommentValidation.validateComment(newComment, commentRepository, false);
+            ValidationError errors = CommentValidation.validateComment(newComment, commentRepository,postRepository, false);
             if(errors.hasError()){
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errors.toJSONString());
 

@@ -5,6 +5,7 @@ import com.careerdevs.gorestfinal.models.Post;
 import com.careerdevs.gorestfinal.models.Todo;
 import com.careerdevs.gorestfinal.repositories.CommentRepository;
 import com.careerdevs.gorestfinal.repositories.TodoRepository;
+import com.careerdevs.gorestfinal.repositories.UserRepository;
 import com.careerdevs.gorestfinal.utils.ApiErrorHandling;
 import com.careerdevs.gorestfinal.utils.BasicUtils;
 import com.careerdevs.gorestfinal.validation.PostValidation;
@@ -29,6 +30,7 @@ public class TodoController {
 
     @Autowired
     TodoRepository todoRepository;
+    UserRepository userRepository;
 
 
 
@@ -84,7 +86,7 @@ public class TodoController {
     @PostMapping("/")
     public ResponseEntity<?> createTodo (@RequestBody Todo newTodo){
         try{
-            ValidationError errors = TodoValidation.validateTodo(newTodo, todoRepository, false);
+            ValidationError errors = TodoValidation.validateTodo(newTodo, todoRepository,userRepository, false);
             if(errors.hasError()){
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errors.toJSONString());
 

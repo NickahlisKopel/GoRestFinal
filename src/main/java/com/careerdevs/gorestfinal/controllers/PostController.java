@@ -2,6 +2,7 @@ package com.careerdevs.gorestfinal.controllers;
 
 import com.careerdevs.gorestfinal.models.Post;
 import com.careerdevs.gorestfinal.repositories.PostRepository;
+import com.careerdevs.gorestfinal.repositories.UserRepository;
 import com.careerdevs.gorestfinal.utils.ApiErrorHandling;
 import com.careerdevs.gorestfinal.utils.BasicUtils;
 import com.careerdevs.gorestfinal.validation.PostValidation;
@@ -26,6 +27,7 @@ public class PostController {
 
     @Autowired
     PostRepository postRepository;
+    UserRepository userRepository;
     /*
 
       Required Routes for GoRestSQL Final: complete for each resource; User, Post, Comment, Todo,
@@ -107,7 +109,7 @@ public class PostController {
     @PostMapping ("/")
     public ResponseEntity<?> createPost (@RequestBody Post newPost){
         try{
-            ValidationError errors = PostValidation.validatePost(newPost, postRepository, false);
+            ValidationError errors = PostValidation.validatePost(newPost,postRepository,userRepository,false);
             if(errors.hasError()){
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errors.toJSONString());
 
