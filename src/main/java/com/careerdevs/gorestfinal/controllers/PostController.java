@@ -1,6 +1,7 @@
 package com.careerdevs.gorestfinal.controllers;
 
 import com.careerdevs.gorestfinal.models.Post;
+import com.careerdevs.gorestfinal.models.User;
 import com.careerdevs.gorestfinal.repositories.PostRepository;
 import com.careerdevs.gorestfinal.repositories.UserRepository;
 import com.careerdevs.gorestfinal.utils.ApiErrorHandling;
@@ -15,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -27,6 +25,7 @@ public class PostController {
 
     @Autowired
     PostRepository postRepository;
+    @Autowired
     UserRepository userRepository;
     /*
 
@@ -212,7 +211,20 @@ public class PostController {
             Post foundPost = restTemplate.getForObject(url,Post.class);
             System.out.println(foundPost);
 
-            assert foundPost != null;
+            if(foundPost == null){
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Post with ID: " + postId + " not found");
+
+            }
+
+            Iterable <User> allUsers = userRepository.findAll();
+            List<User> result = new ArrayList<User>();
+            allUsers.forEach(result::add);
+            long randomId = result.get((int) (result.size() * Math.random())).getId();
+
+            foundPost.setUser_id(randomId);
+
+
+
             Post savedPost = postRepository.save(foundPost);
 
             return new ResponseEntity<>(savedPost, HttpStatus.OK);
@@ -251,6 +263,11 @@ public class PostController {
             String totalPages = Objects.requireNonNull(responseHeaders.get("X-Pagination-Pages")).get(0);
             int totalPgNum = Integer.parseInt(totalPages);
 
+
+
+
+
+
             for(int i = 2; i <= totalPgNum; i++){
                 String pageUrl = url + "?page=" + i;
                 Post[] pagePosts = restTemplate.getForObject(pageUrl, Post[].class);
@@ -259,13 +276,27 @@ public class PostController {
                     throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to GET first page " + i + " of posts from GoREST");
                 }
 
+
+
+
                 allPosts.addAll(Arrays.asList(firstPagePosts));
 
             }
 
+            Iterable <User> allUsers = userRepository.findAll();
+            List<User> result = new ArrayList<User>();
+            allUsers.forEach(result::add);
+
+
+            for (Post allPost : allPosts) {
+                long randomId = result.get((int) (result.size() * Math.random())).getId();
+                allPost.setUser_id(randomId);
+            }
+
+
             postRepository.saveAll(allPosts);
 
-            return new ResponseEntity<>("Users Created: " + allPosts.size(), HttpStatus.OK);
+            return new ResponseEntity<>("Posts Created: " + allPosts.size(), HttpStatus.OK);
 
         }catch(HttpClientErrorException e){
             return ApiErrorHandling.customApiError(e.getMessage(),e.getStatusCode());

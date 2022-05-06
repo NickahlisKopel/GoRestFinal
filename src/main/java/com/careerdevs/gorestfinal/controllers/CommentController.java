@@ -3,6 +3,7 @@ package com.careerdevs.gorestfinal.controllers;
 
 import com.careerdevs.gorestfinal.models.Comment;
 import com.careerdevs.gorestfinal.models.Post;
+import com.careerdevs.gorestfinal.models.User;
 import com.careerdevs.gorestfinal.repositories.CommentRepository;
 import com.careerdevs.gorestfinal.repositories.PostRepository;
 import com.careerdevs.gorestfinal.utils.ApiErrorHandling;
@@ -18,10 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -29,6 +27,7 @@ public class CommentController {
 
     @Autowired
     CommentRepository commentRepository;
+    @Autowired
     PostRepository postRepository;
 
 
@@ -187,7 +186,22 @@ public class CommentController {
             Comment foundComment = restTemplate.getForObject(url,Comment.class);
             System.out.println(foundComment);
 
-            assert foundComment != null;
+            if(foundComment == null){
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Comment with ID: " + commentId + " not found");
+
+            }
+
+            Iterable <Post> allPosts = postRepository.findAll();
+            List<Post> result = new ArrayList<Post>();
+            allPosts.forEach(result::add);
+            long randomId = result.get((int) (result.size() * Math.random())).getId();
+
+            foundComment.setPost_id(randomId);
+
+
+
+
+
             Comment savedComment = commentRepository.save(foundComment);
 
             return new ResponseEntity<>(savedComment, HttpStatus.OK);
@@ -236,6 +250,20 @@ public class CommentController {
                 allComments.addAll(Arrays.asList(firstPageComments));
 
             }
+
+
+            Iterable <Post> allPosts = postRepository.findAll();
+            List<Post> result = new ArrayList<Post>();
+            allPosts.forEach(result::add);
+
+
+            for (Comment allComment : allComments) {
+                long randomId = result.get((int) (result.size() * Math.random())).getId();
+                allComment.setPost_id(randomId);
+            }
+
+
+
 
             commentRepository.saveAll(allComments);
 

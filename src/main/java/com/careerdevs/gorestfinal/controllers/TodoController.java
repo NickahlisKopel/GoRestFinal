@@ -3,6 +3,7 @@ package com.careerdevs.gorestfinal.controllers;
 
 import com.careerdevs.gorestfinal.models.Post;
 import com.careerdevs.gorestfinal.models.Todo;
+import com.careerdevs.gorestfinal.models.User;
 import com.careerdevs.gorestfinal.repositories.CommentRepository;
 import com.careerdevs.gorestfinal.repositories.TodoRepository;
 import com.careerdevs.gorestfinal.repositories.UserRepository;
@@ -19,10 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/todos")
@@ -30,6 +28,7 @@ public class TodoController {
 
     @Autowired
     TodoRepository todoRepository;
+    @Autowired
     UserRepository userRepository;
 
 
@@ -179,7 +178,20 @@ public class TodoController {
             Todo foundTodo = restTemplate.getForObject(url,Todo.class);
             System.out.println(foundTodo);
 
-            assert foundTodo != null;
+            if(foundTodo == null){
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Todo with ID: " + todoId + " not found");
+
+            }
+
+
+            Iterable <User> allUsers = userRepository.findAll();
+            List<User> result = new ArrayList<User>();
+            allUsers.forEach(result::add);
+            long randomId = result.get((int) (result.size() * Math.random())).getId();
+
+            foundTodo.setUser_id(randomId);
+
+
             Todo savedTodo = todoRepository.save(foundTodo);
 
             return new ResponseEntity<>(savedTodo, HttpStatus.OK);
@@ -227,6 +239,18 @@ public class TodoController {
                 allTodos.addAll(Arrays.asList(firstPageTodos));
 
             }
+
+
+            Iterable <User> allUsers = userRepository.findAll();
+            List<User> result = new ArrayList<User>();
+            allUsers.forEach(result::add);
+
+
+            for (Todo allTodo : allTodos) {
+                long randomId = result.get((int) (result.size() * Math.random())).getId();
+                allTodo.setUser_id(randomId);
+            }
+
 
             todoRepository.saveAll(allTodos);
 
