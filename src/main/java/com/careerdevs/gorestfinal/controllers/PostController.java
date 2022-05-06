@@ -318,9 +318,18 @@ public class PostController {
     public ResponseEntity<?> updatePost (@RequestBody Post updatePost){
         try{
 
-            Post savedPost = postRepository.save(updatePost);
 
-            return new ResponseEntity<>(savedPost, HttpStatus.OK);
+            ValidationError errors = PostValidation.validatePost(updatePost,postRepository,userRepository,true);
+            if(errors.hasError()){
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errors.toJSONString());
+
+            }else{
+                Post savedPost = postRepository.save(updatePost);
+
+                return new ResponseEntity<>(savedPost, HttpStatus.OK);
+            }
+
+
 
 
 

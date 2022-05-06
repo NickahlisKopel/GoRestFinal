@@ -284,10 +284,17 @@ public class CommentController {
     @PutMapping("/")
     public ResponseEntity<?> updateComment (@RequestBody Comment updateComment){
         try{
+            ValidationError errors = CommentValidation.validateComment(updateComment, commentRepository,postRepository, true);
+            if(errors.hasError()){
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errors.toJSONString());
 
-            Comment savedComment = commentRepository.save(updateComment);
+            }else{
+                Comment savedComment = commentRepository.save(updateComment);
+                return new ResponseEntity<>(savedComment, HttpStatus.OK);
+            }
 
-            return new ResponseEntity<>(savedComment, HttpStatus.OK);
+
+
 
 
 

@@ -6,6 +6,9 @@ import com.careerdevs.gorestfinal.repositories.CommentRepository;
 import com.careerdevs.gorestfinal.repositories.UserRepository;
 import com.careerdevs.gorestfinal.utils.ApiErrorHandling;
 import com.careerdevs.gorestfinal.utils.BasicUtils;
+import com.careerdevs.gorestfinal.validation.PostValidation;
+import com.careerdevs.gorestfinal.validation.UserValidation;
+import com.careerdevs.gorestfinal.validation.ValidationError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -163,6 +166,14 @@ public class UserController {
     public ResponseEntity<?> createNewUser (@RequestBody User newUser){
         try{
 
+            ValidationError errors = UserValidation.validateUser(newUser,userRepository,false);
+            if(errors.hasError()){
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errors.toJSONString());
+
+            }
+
+
+
             User savedUser = userRepository.save(newUser);
 
             return new ResponseEntity<>(savedUser,HttpStatus.CREATED);
@@ -181,9 +192,20 @@ public class UserController {
     public ResponseEntity<?> updateUser (@RequestBody User updateUser){
         try{
 
-            User savedUser = userRepository.save(updateUser);
 
-            return new ResponseEntity<>(savedUser, HttpStatus.OK);
+            ValidationError errors = UserValidation.validateUser(updateUser,userRepository,true);
+            if(errors.hasError()){
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errors.toJSONString());
+
+            }else{
+                User savedUser = userRepository.save(updateUser);
+
+                return new ResponseEntity<>(savedUser, HttpStatus.OK);
+            }
+
+
+
+
 
 
 

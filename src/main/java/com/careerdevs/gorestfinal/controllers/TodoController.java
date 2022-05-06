@@ -273,9 +273,20 @@ public class TodoController {
     public ResponseEntity<?> updateTodo (@RequestBody Todo updateTodo){
         try{
 
-            Todo savedTodo = todoRepository.save(updateTodo);
 
-            return new ResponseEntity<>(savedTodo, HttpStatus.OK);
+            ValidationError errors = TodoValidation.validateTodo(updateTodo, todoRepository,userRepository, true);
+            if(errors.hasError()){
+                throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errors.toJSONString());
+
+            }else{
+
+                Todo savedTodo = todoRepository.save(updateTodo);
+
+                return new ResponseEntity<>(savedTodo, HttpStatus.OK);
+            }
+
+
+
 
 
 
